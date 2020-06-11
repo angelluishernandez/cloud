@@ -2,11 +2,20 @@
 
 const SwaggerExpress = require("swagger-express-mw");
 const express = require("express");
-const app = express();
-const morgan = require("morgan");
+const path = require("path");
+const cors = require("./api/config/cors.config");
 const router = require("./api/routes/routes");
+const bodyParser = require("body-parser");
+const morgan = require("morgan");
 
-app.use(morgan("tiny"));
+//Express config
+
+const app = express();
+app.use(morgan("dev"));
+app.use(cors);
+app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use("/", router);
 
 const config = {
@@ -24,7 +33,7 @@ SwaggerExpress.create(config, function (err, swaggerExpress) {
 	// Server launcher
 
 	const port = process.env.PORT || 10010;
-	app.listen(port);
+	app.listen(port, () => console.log(`App listening on port ${port}`));
 
 	// Console greeting
 

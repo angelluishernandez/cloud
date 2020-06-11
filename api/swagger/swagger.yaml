@@ -23,6 +23,8 @@ paths:
             type: array
             items:
               "$ref": "#/definitions/user"
+        '202': 
+          description: No users found      
   "/createUsers":
     post:
       parameters:
