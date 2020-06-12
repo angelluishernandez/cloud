@@ -95,13 +95,15 @@ module.exports.updateUser = (req, res, next) => {
 	const indexOfUser = users.indexOf(userToUpdate);
 
 	const newUserObj = {
-		id: req.params.id,
+		id: userId,
 		...newUserData,
 	};
 
-	if (indexOfUser > 1) {
-		const newUsersArr = users.splice(indexOfUser, 1, newUserObj);
-		fs.writeFile(filePath, JSON.stringify(newUsersArr), "utf8", (err, data) => {
+	if (indexOfUser >= 0) {
+		console.log("entra");
+		users[indexOfUser] = newUserObj;
+
+		fs.writeFile(filePath, JSON.stringify(users), "utf8", (err, data) => {
 			if (err) {
 				console.log(err);
 			}
