@@ -13,7 +13,9 @@
 		"express": "^4.12.3",
 		"morgan": "^1.10.0",
 		"nodemon": "^2.0.4",
-		"swagger-express-mw": "^0.7.0"
+		"swagger-express-mw": "^0.7.0",
+		"swagger-parser": "^9.0.1",
+		"swagger-tools": "^0.10.4"
 	},
 	"devDependencies": {
 		"should": "^7.1.0",

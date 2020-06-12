@@ -1,86 +1,156 @@
 "use strict";
 
-let users = [
-	{
-		id: 1,
-		name: "Angel",
-		birthdate: "26121987",
-		address: {
-			id: 1,
-			street: "Some street",
-			state: "Some state",
-			city: "Some city",
-			country: "Some country",
-			zip: "45AB",
-		},
-	},
+const fs = require("fs");
+const path = require("path");
 
-	{
-		id: 2,
-		name: "Luis",
-		birthdate: "26121987",
-		address: {
-			id: 2,
-			street: "Some street",
-			state: "Some state",
-			city: "Some city",
-			country: "Some country",
-			zip: "45AB",
-		},
-	},
-];
+const helpers = require("../helpers/helper");
+const filePath = path.resolve(__dirname, "../data/users.json");
+
+// This function has been made with the sole purpouse to test that the API is working
 
 module.exports.greeting = (req, res, next) => {
-	res.json({
-		greeting: "hello",
+	res.status(200).send({
+		greeting: "Hello, the API is working",
 	});
 };
 
+////////////////////////////////////////////
+//GET USERS
+////////////////////////////////////////////
+
 module.exports.getAllUsers = (req, res, next) => {
-	res.send(users);
+	fs.readFile(filePath, "utf8", (err, data) => {
+		if (err) {
+			throw err;
+		}
+
+		res.status(200).send(JSON.parse(data));
+	});
 };
+
+////////////////////////////////////////////
+//CREATE ONE USER
+////////////////////////////////////////////
 
 module.exports.createUser = (req, res, next) => {
-	const user = req.body;
-	users.push(user);
-	res.json(users);
-};
+	const userData = req.body;
 
-module.exports.getOneUser = (req, res, next) => {
-	const userId = req.params.userId;
+	let users = helpers.JSONtoArray(filePath);
 
-	const user = users.filter((user) => user.id === userId);
+	const userObj = {
+		id: users.length + 1,
+		...userData,
+	};
 
-	if (user) {
-		res.status(200).json(user);
-	} else if (users.length !== 0 && !user) {
-		res.status(400).json("Invalid user id");
-	} else if (!user) {
-		res.status(404).json("User not found");
+	// userExists returns true if the user exists. False otherwise
+
+	const userExists = helpers.userExists(users, userData.email);
+
+	let newUsersFile = [...users, userObj];
+
+	if (!userData.email || !userData.name) {
+		res.status(404).send("invalid input");
+	} else if (userExists) {
+		res.status(404).send("User already exists");
+	} else {
+		fs.writeFile(filePath, JSON.stringify(newUsersFile), "utf8", (err) => {
+			if (err) {
+				console.log(err);
+			}
+			res.status(201).send("CREATED");
+		});
 	}
 };
 
-module.exports.updateUser = (req, res, next) => {
-	const updatedUser = req.body;
-	const userId = req.params.userId;
-	const userToUpdate = users.filter((user) => user.id === userId);
+////////////////////////////////////////////
+//GET ONE USER
+////////////////////////////////////////////
 
-	// Compare current object with the user send in the body of the request.
-	// In case a property  in userToUpdate is equal to the one in the body don't change anything
-	// If they are not equal overwrite it with the new data.
-};
+module.exports.getOneUser = (req, res, next) => {
+	const userId = Number(req.params.userId);
 
-module.exports.deleteUser = (req, res, next) => {
-	const userId = req.params.userId;
-	const user = users.filter((user) => user.id === userId);
+	let users = helpers.JSONtoArray(filePath);
+
+	const user = users.find((user) => user.id === userId);
 
 	if (user) {
-		const userIndex = users.indexOf(user);
-		users.splice(userIndex, 1);
-		res.status(200).json("OK");
+		res.status(200).send(user);
+	} else if (isNaN(userId)) {
+		res.status(400).send("Invalid user id");
 	} else if (users.length !== 0 && !user) {
+		res.status(404).send("User not found");
+	}
+};
+
+////////////////////////////////////////////
+//UPDATE USER
+////////////////////////////////////////////
+
+module.exports.updateUser = (req, res, next) => {
+	const newUserData = req.body;
+	const userId = Number(req.params.userId);
+	let users = helpers.JSONtoArray(filePath);
+
+	const userToUpdate = users.find((user) => user.id === userId);
+	const indexOfUser = users.indexOf(userToUpdate);
+
+	const newUserObj = {
+		id: req.params.id,
+		...newUserData,
+	};
+
+	if (indexOfUser > 1) {
+		const newUsersArr = users.splice(indexOfUser, 1, newUserObj);
+		fs.writeFile(filePath, JSON.stringify(newUsersArr), "utf8", (err, data) => {
+			if (err) {
+				console.log(err);
+			}
+			console.log(data);
+			res.status(200).send("OK");
+		});
+	} else if (isNaN(userId)) {
+		res.status(400).send("Invalid user id");
+	} else if (users.length !== 0 && !userToUpdate) {
+		res.status(404).send("User not found");
+	}
+};
+
+////////////////////////////////////////////
+//DELETE USER
+////////////////////////////////////////////
+
+module.exports.deleteUser = (req, res, next) => {
+	const userId = Number(req.params.userId);
+	const users = helpers.JSONtoArray(filePath);
+
+	// Return all elements in the array but the one we are looking for
+
+	const filteredUsers = users.filter((user) => user.id !== userId);
+
+	// If users.length and filteredUsers.length are equal this means that the user exists
+	// and we can procede to its deletion. Else there's no such element in the file.
+
+	if (users.length !== filteredUsers.length) {
+		fs.writeFile(
+			filePath,
+			JSON.stringify(filteredUsers),
+			"utf8",
+			(err, data) => {
+				if (err) {
+					console.log(err);
+				}
+				res.status(202).json("OK");
+			}
+		);
+		res.status(200).json("OK");
+	}
+	// If the id in params cannot be parsed into a number we cannot proceed.
+	else if (isNaN(userId)) {
 		res.status(400).json("Invalid user id");
-	} else if (!user) {
+	}
+
+	// If the length is the same that means that the user hasn't been found.
+	else if (users.length === filteredUsers.length) {
 		res.status(404).json("User not found");
 	}
 };
