@@ -1,4 +1,5 @@
 "use strict";
+require("dotenv").config();
 
 const SwaggerExpress = require("swagger-express-mw");
 const express = require("express");
@@ -7,6 +8,11 @@ const cors = require("./api/config/cors.config");
 const router = require("./api/routes/routes");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
+const mongoose = require("mongoose");
+
+// DB Config
+
+require("./api/config/db.config");
 
 //Express config
 
@@ -21,6 +27,28 @@ app.use("/", router);
 const config = {
 	appRoot: __dirname, // required config
 };
+
+// error handler
+app.use(function (error, req, res, next) {
+	console.error(error);
+
+	res.status(error.status || 500);
+
+	const data = {};
+
+	if (error instanceof mongoose.Error.ValidationError) {
+		res.status(400);
+		for (field of Object.keys(error.errors)) {
+			error.errors[field] = error.errors[field].message;
+		}
+		data.errors = error.errors;
+	} else if (error instanceof mongoose.Error.CastError) {
+		error = createError(404, "Resource not found");
+	}
+
+	data.message = error.message;
+	res.json(data);
+});
 
 SwaggerExpress.create(config, function (err, swaggerExpress) {
 	if (err) {

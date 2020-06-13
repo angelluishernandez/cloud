@@ -11,6 +11,7 @@
 		"body-parser": "^1.19.0",
 		"cors": "^2.8.5",
 		"express": "^4.12.3",
+		"mongoose": "^5.9.18",
 		"morgan": "^1.10.0",
 		"nodemon": "^2.0.4",
 		"swagger-express-mw": "^0.7.0",
@@ -19,7 +20,7 @@
 	},
 	"devDependencies": {
 		"should": "^7.1.0",
-		"supertest": "^1.0.0"
+		"supertest": "^4.0.2"
 	},
 	"scripts": {
 		"start": "node_modules/.bin/nodemon -e js",
