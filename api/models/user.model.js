@@ -1,8 +1,13 @@
 const mongoose = require("mongoose");
+const autoIncrement = require("mongoose-auto-increment");
 
 const EMAIL_PATTERN = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 const userSchema = new mongoose.Schema({
+	_id: {
+		type: Number,
+		required: true,
+	},
 	name: {
 		type: String,
 		required: [true, "Your name is required"],

@@ -6,9 +6,7 @@ const User = require("../models/user.model");
 // This function has been made with the sole purpouse to test that the API is working
 
 module.exports.greeting = (req, res, next) => {
-	res.status(200).send({
-		greeting: "Hello, the API is working",
-	});
+	res.status(200).json("Hello, the API is working");
 };
 
 ////////////////////////////////////////////
@@ -17,10 +15,10 @@ module.exports.greeting = (req, res, next) => {
 
 module.exports.getAllUsers = (req, res, next) => {
 	User.find().then((users) => {
-		if (users) {
-			res.status(200).send(users);
+		if (users.length >= 1) {
+			res.status(200).json(users);
 		} else {
-			res.status(202).send("No users found");
+			res.status(202).json("No users found");
 		}
 	});
 };
@@ -30,43 +28,57 @@ module.exports.getAllUsers = (req, res, next) => {
 ////////////////////////////////////////////
 
 module.exports.createUser = (req, res, next) => {
-	const user = new User({
-		name: req.body.name,
-		email: req.body.email,
-		birthDate: req.body.birthDate,
-		address: {
-			street: req.body.street,
-			state: req.body.state,
-			city: req.body.city,
-			country: req.body.country,
-			zip: req.body.zip,
-		},
-	});
+	let userCount = 0;
 
-	user
-		.save()
-		.then((user) => res.status(201).send("CREATED"))
-		.catch((error) => res.status(405).send(error));
+	User.find()
+		.then((users) => {
+			userCount = users.length;
+
+			///
+			console.log(userCount);
+
+			const user = new User({
+				_id: userCount + 1,
+				name: req.body.name,
+				email: req.body.email,
+				birthDate: req.body.birthDate,
+				address: {
+					street: req.body.street,
+					state: req.body.state,
+					city: req.body.city,
+					country: req.body.country,
+					zip: req.body.zip,
+				},
+			});
+
+			if (!user.name || !user.email) {
+				res.status(405).json("Invalid input");
+			}
+			user
+				.save()
+				.then((user) => res.status(201).json("CREATED"))
+				.catch((err) => console.log(err));
+		})
+		.catch((error) => console.log(error));
 };
-
 ////////////////////////////////////////////
 //GET ONE USER
 ////////////////////////////////////////////
 
 module.exports.getOneUser = (req, res, next) => {
-	const userId = req.params.userId;
+	const userId = Number(req.params.userId);
 
-	// if (isNaN(userId)) {
-	// 	res.status(400).send("Invalid id");
-	// }
+	if (isNaN(userId)) {
+		res.status(400).json("Invalid id");
+	}
 
 	User.findById(userId)
 		.then((user) => {
 			if (user) {
-				res.status(200).send(user);
+				res.status(200).json(user);
 			}
 			if (!user) {
-				res.status(404).send("User not found");
+				res.status(404).json("User not found");
 			}
 		})
 		.catch((error) => console.log(error));
@@ -77,7 +89,7 @@ module.exports.getOneUser = (req, res, next) => {
 ////////////////////////////////////////////
 
 module.exports.updateUser = (req, res, next) => {
-	const userId = req.params.userId;
+	const userId = Number(req.params.userId);
 
 	const {
 		name,
@@ -104,18 +116,16 @@ module.exports.updateUser = (req, res, next) => {
 		},
 	};
 
-	console.log(userModel);
-
-	// if (isNaN(userId)) {
-	// 	res.status(400).send("Invalid user id");
-	// }
+	if (isNaN(userId)) {
+		res.status(400).json("Invalid user id");
+	}
 
 	User.findByIdAndUpdate(userId, userModel, { new: true })
 		.then((user) => {
 			if (!user) {
-				res.status(404).send("User not found");
+				res.status(404).json("User not found");
 			} else {
-				res.status(200).send("OK");
+				res.status(200).json("OK");
 			}
 		})
 		.catch((error) => console.error(error));
@@ -126,18 +136,18 @@ module.exports.updateUser = (req, res, next) => {
 ////////////////////////////////////////////
 
 module.exports.deleteUser = (req, res, next) => {
-	const userId = req.params.userId;
+	const userId = Number(req.params.userId);
 
-	// if (isNaN(userId)) {
-	// 	res.status(400).send("Invalid user id");
-	// }
+	if (isNaN(userId)) {
+		res.status(400).json("Invalid user id");
+	}
 
 	User.findByIdAndDelete(userId)
 		.then((user) => {
 			if (!user) {
-				res.status(404).send("User not found");
+				res.status(404).json("User not found");
 			} else {
-				res.status(202).send("OK");
+				res.status(202).json("OK");
 			}
 		})
 		.catch((error) => console.error(error));

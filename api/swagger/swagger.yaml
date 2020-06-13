@@ -13,6 +13,13 @@ produces:
 consumes:
 - application/json
 paths:
+
+  "/": 
+    get: 
+      description: Test if api is working 
+      responses: 
+        "200": 
+          description: Hello, the API is working 
   "/getusers":
     get:
       description: Get all users

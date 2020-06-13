@@ -9,9 +9,15 @@
 	"main": "app.js",
 	"dependencies": {
 		"body-parser": "^1.19.0",
+		"chai": "^4.2.0",
+		"chai-http": "^4.3.0",
 		"cors": "^2.8.5",
 		"express": "^4.12.3",
+		"mocha": "^8.0.1",
+		"mock-mongoose": "^8.0.1-a",
+		"mongodb-memory-server": "^6.6.1",
 		"mongoose": "^5.9.18",
+		"mongoose-auto-increment": "^5.0.1",
 		"morgan": "^1.10.0",
 		"nodemon": "^2.0.4",
 		"swagger-express-mw": "^0.7.0",
@@ -23,7 +29,7 @@
 		"supertest": "^4.0.2"
 	},
 	"scripts": {
-		"start": "node_modules/.bin/nodemon -e js",
+		"start": "node_modules/.bin/nodemon -e js ",
 		"test": "swagger project test"
 	}
 }

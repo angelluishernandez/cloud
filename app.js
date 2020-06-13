@@ -50,6 +50,8 @@ app.use(function (error, req, res, next) {
 	res.json(data);
 });
 
+// Swagger config
+
 SwaggerExpress.create(config, function (err, swaggerExpress) {
 	if (err) {
 		throw err;
