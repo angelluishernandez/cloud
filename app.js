@@ -12,7 +12,9 @@ const mongoose = require("mongoose");
 
 // DB Config
 
-require("./api/config/db.config");
+if (process.env.NODE_ENV !== "test") {
+	require("./api/config/db.config");
+}
 
 //Express config
 

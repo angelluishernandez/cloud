@@ -48,16 +48,30 @@ describe("Users", () => {
 				});
 		});
 
-		// it("should return 200 if users not found", done=>{
-		// 	chai.request(server)
-		// 	.get("/users")
-		// 	.end((err, res) => {
-		// 		should.not.exist(err)
-		// 		res.should.have.status(200)
-		// 		res.body.should.be.a("array")
-		// 		res.body.length.should.be.eql
-		// 	})
-		// } )
+		it("should return 200 if users not found", (done) => {
+			const user = new User({
+				_id: 500,
+				name: "Angel1",
+				email: "email1@email.com",
+				address: {
+					_id: 800,
+					street: "Some street",
+					zip: "Some zip",
+				},
+			});
+			user.save((err, user) => {
+				chai
+					.request(server)
+					.get("/users")
+					.end((err, res) => {
+						should.not.exist(err);
+						res.should.have.status(200);
+						res.body.should.be.a("array");
+						res.body.length.should.be.eql(1);
+						done();
+					});
+			});
+		});
 	});
 
 	// // Create user route
