@@ -9,12 +9,12 @@ Please bear in mind that heroku servers take some time before they can be operat
 
 ## How to run locally?
 
-npm start
+`npm start`
 
 
 ## How to run the tests? 
 
-npm test
+`npm test`
 
 
 # REST API
